@@ -21,32 +21,31 @@ jobs:
         with:
           version: 8
 
+      - name: Get pnpm store directory
+        run: echo "PNPM_HOME=$(pnpm store path --silent)" >> $GITHUB_ENV
+
       - name: Install dependencies
         run: pnpm install
 
       - name: Build
         run: pnpm build
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          name: github-pages
           path: ./dist
-          retention-days: 1
 
   deploy:
-    needs: build
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
+    needs: build
     permissions:
       pages: write
       id-token: write
 
     steps:
-      - name: Download artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: github-pages
-          path: .
-
       - name: Deploy to GitHub Pages
-        uses: actions/deploy-pages@v2
+        id: deployment
+        uses: actions/deploy-pages@v4
