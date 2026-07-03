@@ -27,10 +27,12 @@ jobs:
       - name: Build
         run: pnpm build
 
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v2
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
         with:
+          name: github-pages
           path: ./dist
+          retention-days: 1
 
   deploy:
     needs: build
@@ -40,5 +42,11 @@ jobs:
       id-token: write
 
     steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: github-pages
+          path: .
+
       - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v2
